@@ -1,42 +1,6 @@
-| Image | Size | Distro (`PRETTY_NAME`) | Default user |
-|---|---:|---|---|
-| `node:24` | 1.65 GB | Debian GNU/Linux 12 (bookworm) | `root` |
-| `node:24-slim` | 351 MB | Debian GNU/Linux 12 (bookworm) | `root` |
-| `node:24-alpine` | 238 MB | Alpine Linux v3.24 | `root` |
+# DevOps Lab Notes
 
-Note: `User=` is empty for these images, so the default user is `root`.
-
-| IMAGE | ID | DISK USAGE | CONTENT SIZE | EXTRA |
-|---|---|---:|---:|---:|
-| `cow:bad` | `d67717f2fb4b` | 66MB | 4.24MB |  |
-| `cow:good` | `209867305690` | 13.5MB | 4.19MB |  |
-
-
-| Build | Change | `RUN` step cached? | Build time |
-|---|---|---|---:|
-| a | Initial | No | 0.1s |
-| b | Changed `app.txt` | Yes | 0.0s |
-| c | Changed `deps.txt` | No | 0.1s |
-| d | Copied the app before dependencies | No | 0.1s |
-
-Digest for node:24-alpine: sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
-
-Size of course-api:naive: 1.74GB
-Size of course-api:step1: 1.64GB
-docker stop took 10.132 seconds
-docker new stop after adding sigterm handler: 0.107 seconds and code 0
-
-Size of course-api:lab2: 244MB, about 15% reduction. (didn't do math in my head just rough 244 / 1680)
-
-| CONTAINER ID | IMAGE | COMMAND | CREATED | STATUS | PORTS | NAMES |
-|---|---|---|---|---|---|---|
-| `26a3e5b444d6` | `course-api:lab2` | `"docker-entrypoint.s…"` | About a minute ago | Up About a minute (healthy) | `0.0.0.0:8080->5000/tcp, [::]:8080->5000/tcp` | `api` |
-
-```text
-uid=1000(node) gid=1000(node) groups=1000(node),1000(node)
-```
-
-### Environment details
+## 1. Environment
 
 | Property | Value |
 |---|---|
@@ -44,109 +8,214 @@ uid=1000(node) gid=1000(node) groups=1000(node),1000(node)
 | Version ID | `24.04` |
 | Codename | `noble` |
 | Distribution ID | `ubuntu` (`debian`-like) |
-| Ubuntu codename | `noble` |
 | Kernel | `6.18.37-0-virt` |
 
-> The kernel version `6.18.37-0-virt` belongs to my laptop's VM.
+> **Note:** The kernel `6.18.37-0-virt` belongs to my laptop's VM, not to the container. Containers share the host kernel.
 
+---
 
-Cat output of /lab/newtools.txt
+## 2. Base Image Comparison
+
+| Image | Size | Distro (`PRETTY_NAME`) | Default user |
+|---|---:|---|---|
+| `node:24` | 1.65 GB | Debian GNU/Linux 12 (bookworm) | `root` |
+| `node:24-slim` | 351 MB | Debian GNU/Linux 12 (bookworm) | `root` |
+| `node:24-alpine` | 238 MB | Alpine Linux v3.24 | `root` |
+
+> `User=` is empty for all three images, so the default user is `root`.
+
+**Pinned digest for `node:24-alpine`:**
+
+```text
+sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1
+```
+
+---
+
+## 3. Copy-on-Write Layers
+
+| Image | ID | Disk usage | Content size |
+|---|---|---:|---:|
+| `cow:bad` | `d67717f2fb4b` | 66 MB | 4.24 MB |
+| `cow:good` | `209867305690` | 13.5 MB | 4.19 MB |
+
+---
+
+## 4. Build Cache Behaviour
+
+| Build | Change | `RUN` step cached? | Build time |
+|---|---|:---:|---:|
+| a | Initial build | ❌ No | 0.1 s |
+| b | Changed `app.txt` | ✅ Yes | 0.0 s |
+| c | Changed `deps.txt` | ❌ No | 0.1 s |
+| d | Copied the app before dependencies | ❌ No | 0.1 s |
+
+---
+
+## 5. Optimising `course-api`
+
+### Image size
+
+| Tag | Size |
+|---|---:|
+| `course-api:naive` | 1.74 GB |
+| `course-api:step1` | 1.64 GB |
+| `course-api:lab2` | **244 MB** |
+
+The final image is roughly **15% of the original size**, i.e. about an **85% reduction** (244 MB / ~1,680 MB, rough estimate).
+
+### Graceful shutdown
+
+| Scenario | `docker stop` time | Exit code |
+|---|---:|:---:|
+| Before SIGTERM handler | 10.132 s | — |
+| After adding SIGTERM handler | 0.107 s | `0` |
+
+### Running container
+
+| Container ID | Image | Command | Status | Ports | Name |
+|---|---|---|---|---|---|
+| `26a3e5b444d6` | `course-api:lab2` | `"docker-entrypoint.s…"` | Up (healthy) | `0.0.0.0:8080->5000/tcp`, `[::]:8080->5000/tcp` | `api` |
+
+### Running as non-root
+
+```text
+uid=1000(node) gid=1000(node) groups=1000(node),1000(node)
+```
+
+---
+
+## 6. Linux Fundamentals
+
+### Reading a file
+
+```console
+$ cat /lab/newtools.txt
 chef tools
 ansible tools
 docker tools
+```
 
-output of "docker logs web 2>/dev/null | grep -c '" 404 '" -> 20
+### Counting 404s in logs
 
-output of trying to add student:
+```console
+$ docker logs web 2>/dev/null | grep -c '" 404 '
+20
+```
+
+### File permissions
+
+```console
 root@b98b94ace51f:/# echo secret > /lab/f && chmod 750 /lab/f && ls -l /lab/f
 -rwxr-x--- 1 root root 7 Oct  7 16:13 /lab/f
 root@b98b94ace51f:/# useradd -m student
 root@b98b94ace51f:/# su - student -c 'cat /lab/f'
 cat: /lab/f: Permission denied
-root@b98b94ace51f:/# 
+```
 
-output of setting an app_env:
+`student` is neither the owner nor in the `root` group, so the "other" bits (`---`) apply and access is denied.
+
+### Environment variables
+
+```console
 root@b98b94ace51f:/# APP_ENV=staging; sh -c 'echo "child sees: $APP_ENV"'
-child sees: 
+child sees:
 root@b98b94ace51f:/# export APP_ENV=staging
 root@b98b94ace51f:/# APP_ENV=staging; sh -c 'echo "child sees: $APP_ENV"'
 child sees: staging
-root@b98b94ace51f:/# 
+```
 
-Stoptime for lab -> 0.01s
-PID 1 is bash.
+A plain shell variable stays in the current shell. Only after `export` is it passed to child processes.
 
-container output:
+### PID 1
+
+- **Stop time:** 0.01 s
+- **PID 1:** `bash`
+
+---
+
+## 7. Container Networking
+
+**From inside a container on the same network:**
+
+```console
 root@b98b94ace51f:/# getent hosts web
 172.18.0.2      web
 root@b98b94ace51f:/# curl -sI http://web/ | head -1
 HTTP/1.1 200 OK
-root@b98b94ace51f:/# 
+```
 
-host output:
-davit@Davits-MacBook-Air-M4 turiba-devops-labs % docker exec web netstat -ltn
-Active Internet connections (only servers)
-Proto Recv-Q Send-Q Local Address           Foreign Address         State       
-tcp        0      0 127.0.0.11:44307        0.0.0.0:*               LISTEN      
-tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      
-tcp        0      0 :::80                   :::*                    LISTEN      
-davit@Davits-MacBook-Air-M4 turiba-devops-labs % curl -sI http://localhost:8081/ | head -1
+**From the host:**
+
+```console
+% docker exec web netstat -ltn
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
+tcp        0      0 127.0.0.11:44307        0.0.0.0:*               LISTEN
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN
+tcp        0      0 :::80                   :::*                    LISTEN
+
+% curl -sI http://localhost:8081/ | head -1
 HTTP/1.1 200 OK
-davit@Davits-MacBook-Air-M4 turiba-devops-labs % 
+```
 
-two different addresses reach the same nginx because they are both in the same network and the docker is translating the "web" string into a proper address.
+**Why two different addresses reach the same nginx:** inside the network, Docker's embedded DNS resolves the name `web` to the container's IP. From the host, the published port `8081` is forwarded to port `80` in the container. Both paths end at the same nginx listening on `0.0.0.0:80`.
 
+---
 
+## 8. Debugging Broken Images
 
-Debugging Section
+### `ghcr.io/mleitass/lab2-broken:2`
 
-ghcr.io/mleitass/lab2-broken:2
+| | |
+|---|---|
+| **Symptom** | `exec /entrypoint.sh: no such file or directory` |
+| **Cause** | `entrypoint.sh` has Windows line endings (`\r\n`, visible as `^M$`). The shebang becomes `#!/bin/sh\r`, an interpreter that doesn't exist. |
+| **Fix** | Convert the file to Unix line endings (e.g. `dos2unix entrypoint.sh` or `sed -i 's/\r$//' entrypoint.sh`). |
 
-Symptom -> exec /entrypoint.sh: no such file or directory
+### `ghcr.io/mleitass/lab2-broken:3`
 
-Cause -> bash is not loading properly because hidden symbols in the entrypoint.sh file 
+| | |
+|---|---|
+| **Symptom** | `curl localhost:8082` returns an empty response from the server. |
+| **Cause** | `server.js` binds only to `127.0.0.1`, so it is unreachable from outside the container. |
+| **Fix** | Remove the host argument (or use `0.0.0.0`) so the server listens on all interfaces. |
 
-Fix -> change the entrypoint.sh to be properly written without weird symbols like ^M$
+```js
+// Before
+const server = app.listen(PORT, "127.0.0.1", () => { ... });
 
-ghcr.io/mleitass/lab2-broken:3
+// After
+const server = app.listen(PORT, () => { ... });
+```
 
-Symptom -> curl localhost:8082 returns empty response from the server
+### `ghcr.io/mleitass/lab2-broken:4`
 
-Cause -> in the server.js, it only accepts requests from localhost const server = app.listen(PORT, "127.0.0.1", () => {
-  console.log(`API listening on port ${PORT}`);
-});
+| | |
+|---|---|
+| **Symptom** | `Database not reachable (connect ECONNREFUSED … 127.0.0.1:5432)` |
+| **Cause** | 1) No Postgres server is running. 2) Even if one were, it would be in another container, where `localhost` points to the app container itself. |
+| **Fix** | Run Postgres in its own container on the same network and set `DB_HOST` to its service/container name (e.g. `DB_HOST=db`). |
 
-Fix -> remove 127.0.0.1 from the code indicated.
+### `ghcr.io/mleitass/lab2-broken:5`
 
+| | |
+|---|---|
+| **Symptom** | `EACCES: permission denied, open '/app/data/todos.log'` |
+| **Cause** | `/app/data` is owned by `root` (`drwxr-xr-x 0 0`), but the app runs as the non-root `node` user. |
+| **Fix** | Change ownership to `node` in the Dockerfile, e.g. `RUN chown node:node /app/data`. |
 
-ghcr.io/mleitass/lab2-broken:4
+### `ghcr.io/mleitass/lab2-broken:6`
 
-Symptom -> Database not reachable (connect ECONNREFUSED … 127.0.0.1:5432)
+| | |
+|---|---|
+| **Symptom** | `docker stop` takes 10 s and the container exits with code `137`. |
+| **Cause** | Shell-form `CMD` runs `/bin/sh` as PID 1, which does not forward SIGTERM to `node server.js`, so Docker falls back to SIGKILL. |
+| **Fix** | Use exec form so Node is PID 1: `CMD ["node", "server.js"]`. |
 
-Cause -> there's no posgress server running anywhere for 1, and two if it was it was it's prbably in a nother container and localhost wouldnt work
+### `ghcr.io/mleitass/lab2-broken:7`
 
-Fix -> start another server and give env DB_HOST as db or something the name of the service
-
-ghcr.io/mleitass/lab2-broken:5
-
-Symptom -> EACCES: permission denied, open '/app/data/todos.log'
-
-Cause -> the directory is owned by root (drwxr-xr-x    2 0        0             4096 Oct  5 18:54 /app/data), and we are using the filesystem as a node user (non-root)
-
-Fix -> make the dir chmod to node
-
-ghcr.io/mleitass/lab2-broken:6
-
-Symptom -> docker stop takes 10s and end 137s
-
-Cause -> /bin/sh is calling node server.js
-
-Fix -> change the dockerfile to not do the whole first do /bin/sh, and then node server.js, just do node server.js directly
-
-ghcr.io/mleitass/lab2-broken:7
-
-Symptom -> its unhealthy perma but app works 
-
-Cause ->. dockerfile has a run command in it that calls curl but alpine version doesn't have curl
-
-Fix - remove the line from dockerfile that does curl
+| | |
+|---|---|
+| **Symptom** | Container is permanently `unhealthy`, but the app works. |
+| **Cause** | The `HEALTHCHECK` uses `curl`, which isn't installed in the Alpine image. |
+| **Fix** | Remove the curl-based healthcheck, or replace it with `wget` (available in Alpine) or install `curl`. |
