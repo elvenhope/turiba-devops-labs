@@ -31,12 +31,12 @@ Part 1: fill in "I predicted" (the letter and a one-line reason) before you writ
 
 | # | I predicted | What I saw (command → the deciding output line) | Match? | If not: why |
 |---|-------------|--------------------------------------------------|--------|-------------|
-| P1 | __A I think it will return the IP of the container that does the DB__ | ____ | ____ | |
-| P2 | __A I am assuming 5432 is the exposed port in that case yes__ | ____ | ____ | |
-| P3 | __B regular down doesn't remove volume only container and network__ | ____ | ____ | |
-| P4 | __B everything is gone, and only DB is started up__ | ____ | ____ | |
-| P5 | __B I am assuming that API has a healthcheck built in that checks__ | ____ | ____ | |
-| P6 | __B browser doesn't know docker DNS__ | ____ | ____ | |
+| P1 | __A I think it will return the IP of the container that does the DB__ | __It did return the ip a local one starting with 172 but still__ | __Yes__ | |
+| P2 | __A I am assuming 5432 is the exposed port in that case yes__ | __It was not exposed__ | __No__ | Because the port was not exposed to the local machine |
+| P3 | __B regular down doesn't remove volume only container and network__ | __The data survived the down__ | __Yes__ | |
+| P4 | __B everything is gone, and only DB is started up__ | __it had to be rebuilt __ | __Yes__ | |
+| P5 | __B I am assuming that API has a healthcheck built in that checks__ | __I was close, it had depends on, the healthcheck was in the database__ | __No__ | The healthcheck was in the db not in the API|
+| P6 | __B browser doesn't know docker DNS__ | __the browser doesn't know api dns__ | __yes__ | |
 
 ## 3 · Backup and restore
 
