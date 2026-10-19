@@ -42,9 +42,78 @@ Part 1: fill in "I predicted" (the letter and a one-line reason) before you writ
 
 ```text
 (paste the whole output of step 3.3: pg_dump, down -v, the count query, the restore, and the GET with your todo back)
+davit@Davits-MacBook-Air-M4 turiba-devops-labs % mkdir -p backup
+davit@Davits-MacBook-Air-M4 turiba-devops-labs % docker compose exec -T db pg_dump -U todo -d todo > backup/todo.sql
+
+davit@Davits-MacBook-Air-M4 turiba-devops-labs % grep 'survive me' backup/todo.sql
+
+3       <you>: survive me       f       2026-10-19 17:07:45.901169+00
+davit@Davits-MacBook-Air-M4 turiba-devops-labs % docker compose down -v
+
+[+] down 6/6
+ ✔ Container course-app-web-1 Removed                                                                                    0.1s
+ ✔ Container course-app-api-1 Removed                                                                                    0.1s
+ ✔ Container course-app-db-1  Removed                                                                                    0.1s
+ ✔ Volume course-app_pgdata   Removed                                                                                    0.0s
+ ✔ Network course-app_back    Removed                                                                                    0.1s
+ ✔ Network course-app_front   Removed                                                                                    0.0s
+davit@Davits-MacBook-Air-M4 turiba-devops-labs % docker compose up -d --wait db
+
+[+] up 3/3
+ ✔ Network course-app_back   Created                                                                                     0.0s
+ ✔ Volume course-app_pgdata  Created                                                                                     0.0s
+ ✔ Container course-app-db-1 Healthy                                                                                     5.6s
+davit@Davits-MacBook-Air-M4 turiba-devops-labs % docker compose exec db psql -U todo -d todo -c 'select count(*) from todos'
+
+ERROR:  relation "todos" does not exist
+LINE 1: select count(*) from todos
+                             ^
+davit@Davits-MacBook-Air-M4 turiba-devops-labs % docker compose exec -T db psql -U todo -d todo < backup/todo.sql
+
+SET
+SET
+SET
+SET
+SET
+SET
+ set_config 
+------------
+ 
+(1 row)
+
+SET
+SET
+SET
+SET
+SET
+SET
+CREATE TABLE
+ALTER TABLE
+CREATE SEQUENCE
+ALTER SEQUENCE
+ALTER SEQUENCE
+ALTER TABLE
+COPY 3
+ setval 
+--------
+      3
+(1 row)
+
+ALTER TABLE
+davit@Davits-MacBook-Air-M4 turiba-devops-labs % docker compose up -d --wait
+
+[+] up 4/4
+ ✔ Network course-app_front   Created                                                                                    0.0s
+ ✔ Container course-app-db-1  Healthy                                                                                    1.2s
+ ✔ Container course-app-api-1 Healthy                                                                                    5.7s
+ ✔ Container course-app-web-1 Healthy                                                                                    1.2s
+davit@Davits-MacBook-Air-M4 turiba-devops-labs % curl -s localhost:8080/api/todos
+[{"id":1,"title":"cake","done":false,"created_at":"2026-10-19T17:00:22.023Z"},{"id":2,"title":"<you>: first","done":false,"created_at":"2026-10-19T17:00:32.319Z"},{"id":3,"title":"<you>: survive me","done":false,"created_at":"2026-10-19T17:07:45.901Z"}]%                                                                                                                         
+davit@Davits-MacBook-Air-M4 turiba-devops-labs % 
+
 ```
 
-Why the restore must run before `api` starts: ____
+Why the restore must run before `api` starts: __because api says if not exist create todos from scratch, and then restore would be like there's a duplicate table__
 
 ## 4 · Compose clinic
 
