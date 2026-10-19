@@ -10,3 +10,5 @@ All notable changes to this repository, newest first. The format follows [Keep a
 - `GET /healthz` documented in `api/README.md`
 
 - `.gitignore` rules for editor, OS and test-coverage files
+
+- `docker compose up` starts the web front, the API and PostgreSQL with one command
