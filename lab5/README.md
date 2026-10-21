@@ -20,9 +20,9 @@ first is graph build, then it gets linted with graph lint, and then graph test d
 
 | # | Question | I predicted, and why | What the run showed |
 |---|----------|----------------------|---------------------|
-| P1 | Which jobs start together? | __Lint and Build I guess__ | ____ |
-| P2 | Will `graph-package` find `build.txt`? | __i guess only if test succeeded?__ | ____ |
-| P3 | With `break = build`: which jobs run, which fail, which are skipped? | __lint runs, test fails and package fails, and report__ | ____ |
+| P1 | Which jobs start together? | __Lint and Build I guess__ | __Lint and Build__ |
+| P2 | Will `graph-package` find `build.txt`? | __i guess only if test succeeded?__ | __It didn't, because they don't share files build.txt: not here: jobs don't share files__ |
+| P3 | With `break = build`: which jobs run, which fail, which are skipped? | __lint runs, test fails and package fails, and report__ | __lint, runs, build fails, graph report runs. test and package are skipped. Error: Process completed with exit code 1.__ |
 
 ## 2 · Pipeline
 
