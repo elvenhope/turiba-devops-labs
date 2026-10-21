@@ -26,7 +26,7 @@ first is graph build, then it gets linted with graph lint, and then graph test d
 
 ## 2 · Pipeline
 
-- B5, before I filled it in: `localhost` or `db`? I predicted ____ because ____
+- B5, before I filled it in: `localhost` or `db`? I predicted __localhost__ because __because each runner step is isolated from others. so that leads me to believe that they are happening in their own containers__
 - My first red run in Part 2 (the job, the first red step, the error line copied from the log): ____
 - What I changed to make it green: ____
 - My lint findings, and how I fixed them (fixed, not silenced): ____
