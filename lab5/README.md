@@ -36,11 +36,11 @@ first is graph build, then it gets linted with graph lint, and then graph test d
 
 ## 3 · Red PR
 
-- Red PR (URL): ____
-- The test that failed, with Expected and Received (copied): ____
-- The cause line from "On failure: the API log" (copied): ____
-- The merge box while it was red (the text, copied): ____
-- Which commit did the red check test: your branch alone, or your branch merged with `main`? How do you know? ____
+- Red PR (URL): __https://github.com/elvenhope/turiba-devops-labs/pull/8__
+- The test that failed, with Expected and Received (copied): __Integration testing, Expected: 404, Received: 500__
+- The cause line from "On failure: the API log" (copied): __DELETE /api/todos/abc failed: invalid input syntax for type integer: "abc"__
+- The merge box while it was red (the text, copied): __Merging is blocked due to failing merge requirements__
+- Which commit did the red check test: your branch alone, or your branch merged with `main`? How do you know? __my branch alone since it wasn't merged with main__
 
 ## 4 · Answers
 
