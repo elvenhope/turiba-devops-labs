@@ -2,7 +2,7 @@
 
 GitHub user: elvenhope · Reference files used (Lab 2 fallback): no
 
-![ci](https://github.com/<you>/turiba-devops-labs/actions/workflows/ci.yml/badge.svg?branch=main)
+![ci](https://github.com/elvenhope/turiba-devops-labs/actions/workflows/ci.yml/badge.svg?branch=main)
 
 <!-- Keep every heading as it is: the grader finds the sections by name. Replace every blank (four underscores), and your user name placeholder in the first line and in the badge URL: write your GitHub user name exactly as GitHub shows it. -->
 
@@ -31,8 +31,8 @@ first is graph build, then it gets linted with graph lint, and then graph test d
 - What I changed to make it green: __nothing__
 - My lint findings, and how I fixed them (fixed, not silenced): ____
 - Part 2 pull request (URL): __https://github.com/elvenhope/turiba-devops-labs/pull/7__
-- Part 3: will the PR run push an image? I predicted __I think yes__. What happened: ____
-- My image on GHCR, from the `main` run: `ghcr.io/____/turiba-devops-labs/api:____`
+- Part 3: will the PR run push an image? I predicted __I think yes__. What happened: it pushed
+- My image on GHCR, from the `main` run: `ghcr.io/elvenhope/turiba-devops-labs/api:33ed44b58ced26d7fdacb8beb77288586964103c`
 
 ## 3 · Red PR
 
