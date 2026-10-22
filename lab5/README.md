@@ -29,7 +29,7 @@ first is graph build, then it gets linted with graph lint, and then graph test d
 - B5, before I filled it in: `localhost` or `db`? I predicted __localhost__ because __because each runner step is isolated from others. so that leads me to believe that they are happening in their own containers__
 - My first red run in Part 2 (the job, the first red step, the error line copied from the log): __everything was green from the get go__
 - What I changed to make it green: __nothing__
-- My lint findings, and how I fixed them (fixed, not silenced): ____
+- My lint findings, and how I fixed them (fixed, not silenced): __I didn't__
 - Part 2 pull request (URL): __https://github.com/elvenhope/turiba-devops-labs/pull/7__
 - Part 3: will the PR run push an image? I predicted __I think yes__. What happened: it pushed
 - My image on GHCR, from the `main` run: `ghcr.io/elvenhope/turiba-devops-labs/api:33ed44b58ced26d7fdacb8beb77288586964103c`
@@ -44,10 +44,10 @@ first is graph build, then it gets linted with graph lint, and then graph test d
 
 ## 4 · Answers
 
-**A1.** ____
+**A1.** __lint, runs, build fails, graph report runs. test and package are skipped. report ran because it had always()__
 
-**A2.** ____
+**A2.** __jobs don't share files. echoing it to something i remember. or something about & symbol__
 
-**A3.** ____
+**A3.** __container doesn't matter the job spins up a new db in the same machine so it can be accessed from localhost__
 
-**A4.** ____
+**A4.** __Integration testing, the rules stopped the merge.__
