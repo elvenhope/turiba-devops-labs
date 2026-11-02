@@ -13,19 +13,21 @@ GitHub user: ElvenHope · Reference pipeline used (Part 0 fallback): no
 
 ## 2 · What broke and how I found it
 
-- The check and the step that went red: ____
+- The check and the step that went red: __Image, smoke step__
 - The log line that showed the cause (copied from the log):
-
+Error: Cannot find module './banner'
+Require stack:
+- /app/server.js
 ```text
 ____
 ```
 
-- The cause, in my own words: ____
-- Why `lint`, `unit` and `integration` stayed green: ____
-- My fix, and the commit that made it: ____
+- The cause, in my own words: __docker ignore was ignoring itself and the banner.js__
+- Why `lint`, `unit` and `integration` stayed green: __cause they didn't care about banner.js__
+- My fix, and the commit that made it: __I removed .dockerignore and banner.js from the .dockerignore 80c16dcbda5326b66ca2334dc9b4af96c5abaf70__
 
 ## 3 · Release
 
-- Release page: https://github.com/<you>/turiba-devops-labs/releases/tag/v0.2.0
-- Image: `ghcr.io/<you>/turiba-devops-labs/api:0.2.0`, platforms (from `docker buildx imagetools inspect`): ____
-- One thing in Part 3 that didn't work the first time, and how I fixed it: ____
+- Release page: https://github.com/elvenhope/turiba-devops-labs/releases/tag/v0.2.0
+- Image: `ghcr.io/elvenhope/turiba-devops-labs/api:0.2.0`, platforms (from `docker buildx imagetools inspect`): __linux/arm64 linux/amd64__
+- One thing in Part 3 that didn't work the first time, and how I fixed it: __It worked, I checked it first manually and by claude later__
