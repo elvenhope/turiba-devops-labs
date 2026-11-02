@@ -7,6 +7,3 @@ npm-debug.log*
 coverage
 *.md
 Dockerfile*
-.dockerignore
-# Local helper scripts, not needed in the image
-banner.js
