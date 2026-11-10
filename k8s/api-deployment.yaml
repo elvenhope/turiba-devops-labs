@@ -15,6 +15,6 @@ spec:
     spec:
       containers:
         - name: api
-          image: ghcr.io/elvenhope/turiba-devops-labs/api:0.2.0
+          image: ghcr.io/elvenhope/turiba-devops-labs/api:a9546981f7d1077fa313d4c66777e880c832eca9
           ports:
             - containerPort: 5000
